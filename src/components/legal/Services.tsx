@@ -4,36 +4,125 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Icon from "@/components/ui/icon";
 
-const Services = () => {
-  return (
-    <section id="services" className="py-20">
-      <div className="container mx-auto px-4">
-        <div className="mb-12 text-center">
-          <h2 className="text-3xl font-bold">Наши услуги</h2>
-          <p className="mt-4 text-slate-600">
-            Получите профессиональную юридическую помощь быстро и удобно
-          </p>
+// Интерфейсы для типизации
+interface ProcessStepProps {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+interface ConsultationCardProps {
+  title: string;
+  description: string;
+  price: string;
+  oldPrice?: string;
+  features: string[];
+  featured?: boolean;
+  buttonText?: string;
+}
+
+interface DocumentItemProps {
+  name: string;
+  price: string;
+}
+
+interface DocumentCategoryCardProps {
+  icon: string;
+  title: string;
+  items: DocumentItemProps[];
+}
+
+// Компонент шага процесса
+const ProcessStep = ({ icon, title, description }: ProcessStepProps) => (
+  <div className="text-center">
+    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-900">
+      <Icon name={icon} className="h-6 w-6" />
+    </div>
+    <h4 className="mt-2 font-medium">{title}</h4>
+    <p className="mt-1 text-sm text-slate-600">
+      {description}
+    </p>
+  </div>
+);
+
+// Компонент карточки консультации
+const ConsultationCard = ({ 
+  title, 
+  description, 
+  price, 
+  oldPrice, 
+  features, 
+  featured = false,
+  buttonText = "Записаться" 
+}: ConsultationCardProps) => (
+  <Card className={featured ? "border-amber-500 shadow-lg" : ""}>
+    <CardHeader>
+      {featured && (
+        <div className="w-full rounded bg-amber-500 py-1 text-center text-xs font-semibold text-white">
+          Популярный выбор
         </div>
+      )}
+      <CardTitle className={featured ? "mt-3" : ""}>{title}</CardTitle>
+      <CardDescription>{description}</CardDescription>
+    </CardHeader>
+    <CardContent>
+      <p className="text-3xl font-bold">{price}</p>
+      {oldPrice && <p className="text-sm text-slate-500 line-through">{oldPrice}</p>}
+      <ul className="mt-4 space-y-2 text-sm">
+        {features.map((feature, index) => (
+          <li key={index} className="flex items-center gap-2">
+            <Icon name="Check" className="h-4 w-4 text-green-500" />
+            <span>{feature}</span>
+          </li>
+        ))}
+      </ul>
+    </CardContent>
+    <CardFooter>
+      <Button className="w-full">{buttonText}</Button>
+    </CardFooter>
+  </Card>
+);
 
-        <Tabs defaultValue="consultations" className="mx-auto max-w-4xl">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="consultations">Онлайн-консультации</TabsTrigger>
-            <TabsTrigger value="documents">Подготовка документов</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="consultations" className="mt-6">
-            <ConsultationsTab />
-          </TabsContent>
-          
-          <TabsContent value="documents" className="mt-6">
-            <DocumentsTab />
-          </TabsContent>
-        </Tabs>
+// Компонент карточки категории документов
+const DocumentCategoryCard = ({ 
+  icon, 
+  title, 
+  items 
+}: DocumentCategoryCardProps) => (
+  <Card>
+    <CardHeader>
+      <div className="flex items-center justify-center p-2">
+        <Icon name={icon} className="h-10 w-10 text-blue-900" />
       </div>
-    </section>
-  );
-};
+      <CardTitle className="text-center">{title}</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <ul className="space-y-3">
+        {items.map((item, index) => (
+          <li key={index} className="flex items-center justify-between">
+            <span className="text-sm">{item.name}</span>
+            <span className="font-medium">{item.price}</span>
+          </li>
+        ))}
+      </ul>
+    </CardContent>
+    <CardFooter>
+      <Button className="w-full">Заказать документ</Button>
+    </CardFooter>
+  </Card>
+);
 
+// Компонент блока "Как это работает"
+const HowItWorksBlock = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <div className="mt-10 rounded-lg bg-slate-50 p-6">
+    <h3 className="text-lg font-semibold">{title}</h3>
+    <div className="mt-4 grid gap-6 md:grid-cols-4">
+      {children}
+    </div>
+  </div>
+);
+
+// Компонент вкладки консультаций
 const ConsultationsTab = () => (
   <>
     <div className="grid gap-6 md:grid-cols-3">
@@ -75,91 +164,32 @@ const ConsultationsTab = () => (
       />
     </div>
 
-    <div className="mt-10 rounded-lg bg-slate-50 p-6">
-      <h3 className="text-lg font-semibold">Как это работает:</h3>
-      <div className="mt-4 grid gap-6 md:grid-cols-4">
-        <ProcessStep 
-          icon="MousePointerClick" 
-          title="Выбираете тему" 
-          description="Укажите тему и предпочтительное время" 
-        />
-        <ProcessStep 
-          icon="CreditCard" 
-          title="Оплачиваете" 
-          description="Безопасная онлайн-оплата картой" 
-        />
-        <ProcessStep 
-          icon="Mail" 
-          title="Получаете ссылку" 
-          description="Ссылка на Zoom-встречу и календарь" 
-        />
-        <ProcessStep 
-          icon="Video" 
-          title="Консультируетесь" 
-          description="В удобное время в Zoom с юристом" 
-        />
-      </div>
-    </div>
+    <HowItWorksBlock title="Как это работает:">
+      <ProcessStep 
+        icon="MousePointerClick" 
+        title="Выбираете тему" 
+        description="Укажите тему и предпочтительное время" 
+      />
+      <ProcessStep 
+        icon="CreditCard" 
+        title="Оплачиваете" 
+        description="Безопасная онлайн-оплата картой" 
+      />
+      <ProcessStep 
+        icon="Mail" 
+        title="Получаете ссылку" 
+        description="Ссылка на Zoom-встречу и календарь" 
+      />
+      <ProcessStep 
+        icon="Video" 
+        title="Консультируетесь" 
+        description="В удобное время в Zoom с юристом" 
+      />
+    </HowItWorksBlock>
   </>
 );
 
-const ConsultationCard = ({ 
-  title, 
-  description, 
-  price, 
-  oldPrice, 
-  features, 
-  featured = false,
-  buttonText = "Записаться" 
-}: { 
-  title: string; 
-  description: string; 
-  price: string; 
-  oldPrice?: string; 
-  features: string[]; 
-  featured?: boolean;
-  buttonText?: string;
-}) => (
-  <Card className={featured ? "border-amber-500 shadow-lg" : ""}>
-    <CardHeader>
-      {featured && (
-        <div className="w-full rounded bg-amber-500 py-1 text-center text-xs font-semibold text-white">
-          Популярный выбор
-        </div>
-      )}
-      <CardTitle className={featured ? "mt-3" : ""}>{title}</CardTitle>
-      <CardDescription>{description}</CardDescription>
-    </CardHeader>
-    <CardContent>
-      <p className="text-3xl font-bold">{price}</p>
-      {oldPrice && <p className="text-sm text-slate-500 line-through">{oldPrice}</p>}
-      <ul className="mt-4 space-y-2 text-sm">
-        {features.map((feature, index) => (
-          <li key={index} className="flex items-center gap-2">
-            <Icon name="Check" className="h-4 w-4 text-green-500" />
-            <span>{feature}</span>
-          </li>
-        ))}
-      </ul>
-    </CardContent>
-    <CardFooter>
-      <Button className="w-full">{buttonText}</Button>
-    </CardFooter>
-  </Card>
-);
-
-const ProcessStep = ({ icon, title, description }: { icon: string; title: string; description: string }) => (
-  <div className="text-center">
-    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-900">
-      <Icon name={icon} className="h-6 w-6" />
-    </div>
-    <h4 className="mt-2 font-medium">{title}</h4>
-    <p className="mt-1 text-sm text-slate-600">
-      {description}
-    </p>
-  </div>
-);
-
+// Компонент вкладки документов
 const DocumentsTab = () => (
   <>
     <div className="grid gap-6 md:grid-cols-3">
@@ -194,64 +224,60 @@ const DocumentsTab = () => (
       />
     </div>
 
-    <div className="mt-10 rounded-lg bg-slate-50 p-6">
-      <h3 className="text-lg font-semibold">Процесс заказа документа:</h3>
-      <div className="mt-4 grid gap-6 md:grid-cols-4">
-        <ProcessStep 
-          icon="FileText" 
-          title="Выбор типа документа" 
-          description="Выберите нужный вам документ" 
-        />
-        <ProcessStep 
-          icon="ClipboardList" 
-          title="Заполнение анкеты" 
-          description="Заполните онлайн-форму с деталями" 
-        />
-        <ProcessStep 
-          icon="CreditCard" 
-          title="Оплата" 
-          description="Безопасная оплата онлайн" 
-        />
-        <ProcessStep 
-          icon="Send" 
-          title="Получение" 
-          description="Документ на email + звонок юриста" 
-        />
-      </div>
-    </div>
+    <HowItWorksBlock title="Процесс заказа документа:">
+      <ProcessStep 
+        icon="FileText" 
+        title="Выбор типа документа" 
+        description="Выберите нужный вам документ" 
+      />
+      <ProcessStep 
+        icon="ClipboardList" 
+        title="Заполнение анкеты" 
+        description="Заполните онлайн-форму с деталями" 
+      />
+      <ProcessStep 
+        icon="CreditCard" 
+        title="Оплата" 
+        description="Безопасная оплата онлайн" 
+      />
+      <ProcessStep 
+        icon="Send" 
+        title="Получение" 
+        description="Документ на email + звонок юриста" 
+      />
+    </HowItWorksBlock>
   </>
 );
 
-const DocumentCategoryCard = ({ 
-  icon, 
-  title, 
-  items 
-}: { 
-  icon: string; 
-  title: string; 
-  items: { name: string; price: string }[] 
-}) => (
-  <Card>
-    <CardHeader>
-      <div className="flex items-center justify-center p-2">
-        <Icon name={icon} className="h-10 w-10 text-blue-900" />
+// Основной компонент Services
+const Services = () => {
+  return (
+    <section id="services" className="py-20">
+      <div className="container mx-auto px-4">
+        <div className="mb-12 text-center">
+          <h2 className="text-3xl font-bold">Наши услуги</h2>
+          <p className="mt-4 text-slate-600">
+            Получите профессиональную юридическую помощь быстро и удобно
+          </p>
+        </div>
+
+        <Tabs defaultValue="consultations" className="mx-auto max-w-4xl">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="consultations">Онлайн-консультации</TabsTrigger>
+            <TabsTrigger value="documents">Подготовка документов</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="consultations" className="mt-6">
+            <ConsultationsTab />
+          </TabsContent>
+          
+          <TabsContent value="documents" className="mt-6">
+            <DocumentsTab />
+          </TabsContent>
+        </Tabs>
       </div>
-      <CardTitle className="text-center">{title}</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <ul className="space-y-3">
-        {items.map((item, index) => (
-          <li key={index} className="flex items-center justify-between">
-            <span className="text-sm">{item.name}</span>
-            <span className="font-medium">{item.price}</span>
-          </li>
-        ))}
-      </ul>
-    </CardContent>
-    <CardFooter>
-      <Button className="w-full">Заказать документ</Button>
-    </CardFooter>
-  </Card>
-);
+    </section>
+  );
+};
 
 export default Services;
